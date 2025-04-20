@@ -33,4 +33,4 @@ jobs:
 
     steps:
     - name: Simulate Deploy
-      run: echo "🚀 Despliegue exitoso del backend"
+      run: echo "Despliegue exitoso del backend"
