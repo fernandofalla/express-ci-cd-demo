@@ -35,6 +35,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Verificar variables (sin exponer claves)
+        run: |
+          echo "Host: ${{ secrets.EC2_HOST }}"
+          echo "User: ${{ secrets.EC2_USER }}"
+          echo "Longitud de SSH_KEY: ${#{{ secrets.EC2_SSH_KEY }} }"
+          
       - name: Add SSH key
         run: |
           mkdir -p ~/.ssh
