@@ -74,10 +74,19 @@ jobs:
           BRANCH="main"
           REPO_DIR="$HOME/app"
 
+          # Si la carpeta existe pero no es un repo válido, la eliminamos
+          if [ -d "$REPO_DIR" ] && [ ! -d "$REPO_DIR/.git" ]; then
+            echo "Directorio '$REPO_DIR' ya existe pero no es un repositorio Git. Eliminando..."
+            rm -rf "$REPO_DIR"
+          fi
+
+          # Clonar o actualizar repo
           if [ -d "$REPO_DIR/.git" ]; then
+            echo "Repositorio ya clonado. Haciendo git pull..."
             cd "$REPO_DIR"
             git pull origin "$BRANCH"
           else
+            echo "Clonando el repositorio..."
             git clone "$REPO_URL" "$REPO_DIR"
             cd "$REPO_DIR"
           fi
