@@ -1,0 +1,18 @@
+# Ignorar node_modules, ya que se instalarán dentro del contenedor
+node_modules
+npm-debug.log
+.env
+.DS_Store
+*.log
+
+# Archivos del sistema y del editor
+.vscode
+.idea
+
+# Git
+.git
+.gitignore
+
+# Otros archivos de configuración o temporales
+docker-compose.yml
+Dockerfile
