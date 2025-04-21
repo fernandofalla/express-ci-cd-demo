@@ -11,26 +11,42 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
 
-    - name: Install dependencies
-      working-directory: ./Backend
-      run: npm ci
+      - name: Install dependencies
+        working-directory: ./Backend
+        run: npm ci
 
-    - name: Run tests
-      working-directory: ./Backend
-      run: npm test
+      - name: Run tests
+        working-directory: ./Backend
+        run: npm test
 
   deploy:
     runs-on: ubuntu-latest
     needs: test
 
     steps:
-    - name: Simulate Deploy
-      run: echo "Despliegue exitoso del backend"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Add SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to EC2
+        run: |
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            cd /home/ubuntu/app
+            git pull origin main
+            docker compose down
+            docker compose up -d --build
+          EOF
