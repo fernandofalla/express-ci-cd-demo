@@ -94,8 +94,8 @@ jobs:
           # Ejecutar Docker Compose
           echo "Ejecutando Docker Compose..."
           cd "$REPO_DIR/simple-web-server"
-          docker-compose down   # Detener contenedores previos
-          docker-compose up -d --build  # Construir y levantar los contenedores en segundo plano
+          docker compose down   # Detener contenedores previos
+          docker compose up -d --build  # Construir y levantar los contenedores en segundo plano
 
           echo "Despliegue completado con éxito!"
           '
