@@ -88,6 +88,6 @@ jobs:
           docker-compose down   # Detener contenedores previos
           docker-compose up -d --build  # Construir y levantar los contenedores en segundo plano
 
-          echo "Despliegue completado con éxito!"
+          echo "Despliegue completado con éxito!" 
           '
 
