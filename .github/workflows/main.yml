@@ -32,32 +32,62 @@ jobs:
     needs: test
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Debug longitud de la clave SSH
-        run: |
-          echo "Host: $EC2_HOST"
-          echo "User: $EC2_USER"
-          echo "Longitud de SSH_KEY: ${#EC2_SSH_KEY}"
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-
-
-      - name: Add SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-
+      - uses: actions/checkout@v2
+      
       - name: Deploy to EC2
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOST: ${{ secrets.EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }}
         run: |
-          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            cd /home/ubuntu/app
-            git pull origin main
-            docker compose down
-            docker compose up -d --build
-          EOF
+          # Guardar la clave privada SSH en un archivo
+          echo "$PRIVATE_KEY" > github-ec2.pem && chmod 600 github-ec2.pem
+          
+          # Conectarse al servidor EC2 y ejecutar los siguientes comandos
+          ssh -o StrictHostKeyChecking=no -i github-ec2.pem ${USER}@${HOST} '
+          
+          echo "Current directory: $(pwd)"
+          echo "Listing home directory:"
+          ls -la ~
+
+          # Verificar si Docker y Docker Compose están instalados
+          echo "Verificando Docker..."
+          if ! command -v docker &> /dev/null; then
+            echo "Docker no está instalado. Instalando Docker..."
+            sudo apt-get update
+            sudo apt-get install -y docker.io
+          else
+            echo "Docker ya está instalado."
+          fi
+
+          echo "Verificando Docker Compose..."
+          if ! command -v docker-compose &> /dev/null; then
+            echo "Docker Compose no está instalado. Instalando Docker Compose..."
+            sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+          else
+            echo "Docker Compose ya está instalado."
+          fi
+
+          # Clonar o actualizar el repositorio
+          REPO_URL="https://github.com/fernandofalla/express-ci-cd-demo.git"
+          BRANCH="main"
+          REPO_DIR="$HOME/app"
+
+          if [ -d "$REPO_DIR/.git" ]; then
+            cd "$REPO_DIR"
+            git pull origin "$BRANCH"
+          else
+            git clone "$REPO_URL" "$REPO_DIR"
+            cd "$REPO_DIR"
+          fi
+
+          # Ejecutar Docker Compose
+          echo "Ejecutando Docker Compose..."
+          cd "$REPO_DIR/simple-web-server"
+          docker-compose down   # Detener contenedores previos
+          docker-compose up -d --build  # Construir y levantar los contenedores en segundo plano
+
+          echo "Despliegue completado con éxito!"
+          '
+
