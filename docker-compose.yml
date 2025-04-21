@@ -7,6 +7,6 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+    # volumes:
+    #   - ./backend:/app
+    #   - /app/node_modules
