@@ -12,31 +12,21 @@ Proyecto de demostración de un pipeline básico de CI/CD con un backend en Node
 
 ## Estructura del proyecto
 
+```text
 ├── .github/workflows/   # Pipeline de GitHub Actions
-
 ├── Backend/
-
 │   ├── src/
-
 │   │   └── app.js
-
 │   ├── test/
-
-│   |   └── app.test.js
-
-|   ├── .dockerignore
-
-|   ├── .gitignore
-
-|   ├── Dockerfile
-
-|   ├── package-lock.json
-
-|   └── package.json
-
+│   │   └── app.test.js
+│   ├── .dockerignore
+│   ├── .gitignore
+│   ├── Dockerfile
+│   ├── package-lock.json
+│   └── package.json
 ├── README.md
-
 └── docker-compose.yml
+```
 
 ## Tecnologías
 
